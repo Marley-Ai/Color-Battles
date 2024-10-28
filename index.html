@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renk Savaşçıları</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #808080; /* Gri arka plan */
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: white; /* Oyun başlığı beyaz */
+            margin-bottom: 20px; /* Altına boşluk ekle */
+        }
+
+        #colorSelection {
+            margin-bottom: 20px;
+        }
+
+        .color-button {
+            width: 30px;
+            height: 30px;
+            display: inline-block;
+            border: 2px solid #000;
+            cursor: pointer;
+        }
+
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(50, 10px); /* 50 sütun */
+            grid-template-rows: repeat(50, 10px); /* 50 satır */
+            gap: 1px;
+            border: 2px solid white; /* Beyaz dış kenar */
+        }
+
+        .cell {
+            width: 10px;
+            height: 10px;
+            background-color: black; /* Siyah hücreler */
+            cursor: pointer;
+            border: 1px solid white; /* Beyaz iç kenarlar */
+        }
+
+        #eraser {
+            background-color: red; /* Silgi butonunun rengi */
+            color: white; /* Beyaz yazı */
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #shapes {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .shape-button {
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid white;
+            background-color: lightgrey;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Renk Savaşçıları</h1>
+
+    <div id="colorSelection">
+        <div class="color-button" style="background-color: yellow;" onclick="selectColor('yellow')"></div>
+        <div class="color-button" style="background-color: blue;" onclick="selectColor('blue')"></div>
+        <div class="color-button" style="background-color: red;" onclick="selectColor('red')"></div>
+        <div class="color-button" style="background-color: orange;" onclick="selectColor('orange')"></div>
+        <div class="color-button" style="background-color: purple;" onclick="selectColor('purple')"></div>
+        <div class="color-button" style="background-color: green;" onclick="selectColor('green')"></div>
+        <div class="color-button" style="background-color: pink;" onclick="selectColor('pink')"></div>
+        <div class="color-button" style="background-color: cyan;" onclick="selectColor('cyan')"></div>
+        <div class="color-button" style="background-color: lime;" onclick="selectColor('lime')"></div>
+        <div class="color-button" style="background-color: brown;" onclick="selectColor('brown')"></div>
+        <div class="color-button" style="background-color: black;" onclick="selectColor('black')"></div>
+        <div class="color-button" style="background-color: grey;" onclick="selectColor('grey')"></div>
+        <div class="color-button" style="background-color: teal;" onclick="selectColor('teal')"></div>
+        <div class="color-button" style="background-color: maroon;" onclick="selectColor('maroon')"></div>
+        <div class="color-button" style="background-color: navy;" onclick="selectColor('navy')"></div>
+        <div class="color-button" style="background-color: olive;" onclick="selectColor('olive')"></div>
+    </div>
+
+    <button id="eraser" onclick="selectEraser()">Silgi</button>
+
+    <div id="grid"></div>
+
+    <div id="shapes">
+        <div class="shape-button" onclick="selectShape('square')">Kare</div>
+        <div class="shape-button" onclick="selectShape('circle')">Yuvarlak</div>
+        <div class="shape-button" onclick="selectShape('triangle')">Üçgen</div>
+        <div class="shape-button" onclick="selectShape('rectangle')">Dörtgen</div>
+        <div class="shape-button" onclick="selectShape('pentagon')">Beşgen</div>
+    </div>
+
+    <script>
+        let selectedColor = null;
+        let selectedShape = null;
+        let shapeSize = 1; // Şekil boyutu başlangıç değeri
+        const gridElement = document.getElementById('grid');
+        let mouseDown = false; // Fare basılı durumu
+
+        // 50x50 hücre oluştur
+        for (let i = 0; i < 2500; i++) { // 50*50 = 2500
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.addEventListener('mousedown', function() {
+                mouseDown = true; // Fare basıldığında durumu değiştir
+                paintCell(cell); // İlk tıklamada hücreyi boyama
+            });
+            cell.addEventListener('mouseover', function() {
+                if (mouseDown) paintCell(cell); // Fare basılıyken hücreyi boyama
+            });
+            cell.addEventListener('mouseup', function() {
+                mouseDown = false; // Fare bırakıldığında durumu değiştir
+            });
+            gridElement.appendChild(cell);
+        }
+
+        // Renk seçimini ayarlayan fonksiyon
+        function selectColor(color) {
+            selectedColor = color; // Seçilen rengi güncelle
+            selectedShape = null; // Şekil seçimi kaldır
+        }
+
+        // Silgi fonksiyonu
+        function selectEraser() {
+            selectedColor = null; // Silgi seçildiğinde rengi kaldır
+            selectedShape = null; // Şekil seçimini kaldır
+        }
+
+        // Şekil seçimini ayarlayan fonksiyon
+        function selectShape(shape) {
+            selectedShape = shape; // Seçilen şekli güncelle
+            selectedColor = null; // Renk seçimini kaldır
+            shapeSize = prompt("Boyut belirleyin (1-10):", "1"); // Kullanıcıdan boyut girişi al
+            shapeSize = Math.max(1, Math.min(10, shapeSize)); // Boyutu sınırla
+        }
+
+        // Hücre boyama fonksiyonu
+        function paintCell(cell) {
+            if (selectedShape) {
+                drawShape(cell, selectedShape, selectedColor, shapeSize); // Seçilen şekli boyama
+            } else if (selectedColor) {
+                cell.style.backgroundColor = selectedColor; // Seçilen renk ile boyama
+            }
+        }
+
+        // Şekil çizme fonksiyonu
+        function drawShape(cell, shape, color, size) {
+            const rowIndex = Math.floor(Array.from(gridElement.children).indexOf(cell) / 50);
+            const colIndex = Array.from(gridElement.children).indexOf(cell) % 50;
+
+            if (shape === 'square') {
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        const targetCell = gridElement.children[(rowIndex + i) * 50 + (colIndex + j)];
+                        if (targetCell) targetCell.style.backgroundColor = color; // Renk ile boyama
+                    }
+                }
+            } else if (shape === 'circle') {
+                for (let i = -size; i <= size; i++) {
+                    for (let j = -size; j <= size; j++) { 
+                        if (i * i + j * j <= size * size) { // Daire alanı
+                            const targetCell = gridElement.children[(rowIndex + i) * 50 + (colIndex + j)];
+                            if (targetCell) targetCell.style.backgroundColor = color; // Renk ile boyama
+                        }
+                    }
+                }
+            } else if (shape === 'triangle') {
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j <= i; j++) {
+                        const targetCell = gridElement.children[(rowIndex + i) * 50 + (colIndex + j)];
+                        if (targetCell) targetCell.style.backgroundColor = color; // Renk ile boyama
+                    }
+                }
+            } else if (shape === 'rectangle') {
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size * 2; j++) { // İki kat genişlik
+                        const targetCell = gridElement.children[(rowIndex + i) * 50 + (colIndex + j)];
+                        if (targetCell) targetCell.style.backgroundColor = color; // Renk ile boyama
+                    }
+                }
+            } else if (shape === 'pentagon') {
+                const center = Math.floor(size / 2);
+                for (let i = 0; i < size; i++) {
+                    for (let j = 0; j < size; j++) {
+                        if (j >= center - i && j <= center + i) {
+                            const targetCell = gridElement.children[(rowIndex + i) * 50 + (colIndex + j)];
+                            if (targetCell) targetCell.style.backgroundColor = color; // Renk ile boyama
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
